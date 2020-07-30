@@ -1,11 +1,14 @@
-maven与tomcat热部署配置
+maven3.6与tomcat8.5热部署配置
   1.tomcat/conf/tomcat-users.xml添加一下三行
   <role rolename="manager-gui"/>
   <role rolename="manager-script"/>
   <user username="tomcat" password="tomcat" roles="manager-gui, manager-script"/>
   
+  注意：如果希望可以远端此tomcat，需要在<tomcat>/webapps/manager/META-INF/context.xml里面注释掉一下一行：
+  <!-- <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+  
   2.在maven项目pom.xml里面添加
-  <build>
+  	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
