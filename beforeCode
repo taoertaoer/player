@@ -1,0 +1,26 @@
+maven与tomcat热部署配置
+  1.tomcat/conf/tomcat-users.xml添加一下三行
+  <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
+  <user username="tomcat" password="tomcat" roles="manager-gui, manager-script"/>
+  
+  2.在maven项目pom.xml里面添加
+  <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<configuration>
+					<path>/player</path>
+					<port>8080</port>
+					<url>http://localhost:8080/manager/text</url><!-- localhost这里可以使用远端的ip -->
+					<username>tomcat</username>
+					<password>tomcat</password>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+  
+  3.项目右键run as ，maven build 首次运行时Goals里输入clean install tomcat7:redeploy
+  
+  4.先启动远端tomcat，再build maven项目即可，项目会自动打成war包上传到tomcat的webapps目录下，tomcat会将其解压，浏览器访问即可。
