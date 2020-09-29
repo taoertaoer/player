@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	version="3.1" metadata-complete="true">
+
+	<display-name>Welcome to Player</display-name>
+	<description>
+     Welcome to Player
+  </description>
+
+	<servlet>
+		<servlet-name>AuthUserController</servlet-name>
+		<servlet-class>com.tao.player.controller.AuthUserController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AuthUserController</servlet-name>
+		<url-pattern>/AuthUserController</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>MenuController</servlet-name>
+		<servlet-class>com.tao.player.controller.MenuController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuController</servlet-name>
+		<url-pattern>/MenuController</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ImageServlet</servlet-name>
+		<servlet-class>com.tao.player.controller.ImageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ImageServlet</servlet-name>
+		<url-pattern>/ImageServlet</url-pattern>
+	</servlet-mapping>
+	
+	<filter>
+		<filter-name>authFilter</filter-name>
+		<filter-class>com.tao.player.filter.UserFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>utf-8</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>authFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+</web-app>

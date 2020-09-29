@@ -1,0 +1,1 @@
+var data={};window.location.search.substr(1).split('&').forEach(function(e){data[e.split('=')[0]]=e.split('=')[1];})

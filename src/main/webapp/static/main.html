@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>主页</title>
+<style type="text/css">
+*{
+	margin: 0;
+	padding: 0;
+}
+#platform {
+	width: 100%;
+	height: 100%;
+	background: #90c8b4;
+	position: absolute;
+}
+#menus{
+	vertical-align: top;
+    height: 100%;
+    width: 15%;
+    display: inline-block;
+    background-color: #d6e3c4;
+}
+#content{
+	vertical-align: top;
+    height: 100%;
+    width: 84%;
+    display: inline-block;
+}
+header{
+    background-color: #568670;
+    height: 10%;
+}
+main{
+	height: 80%;
+}
+footer{
+    background-color: #568670;
+    height: 10%;
+}
+</style>
+</head>
+<body>
+<div id ="platform">
+	<header>
+		<span><img src="" id="profile" height="80%"></span><span id="user"></span> | <span id="role"></span> | <a href="../AuthUserController?method=logout">退出</a>
+	</header>
+	<main>
+		<span id="menus">
+		</span>
+		<span id="content">
+		</span>
+	</main>
+	<footer>
+	===========================================</footer>
+</div>
+<script src="js/jquery-3.5.1.min.js"></script>
+<script src="js/md5.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	$.ajax({
+		url:"../MenuController",
+		data:{method: 'findMenusRoleUser'},
+		type:"post",
+		success:function(data){
+			console.log(data);
+			if(data&&data.menus.length>0){
+				for(var i =0;i<data.menus.length;i++){
+					if(!data.menus[i].fatherId){
+						var m = $("<menu>");
+						m.text(data.menus[i].menuName);
+						m.attr('label',data.menus[i].id);
+						$("#menus").append(m);
+					}
+				}
+				for(var i =0;i<data.menus.length;i++){
+					if(data.menus[i].fatherId){
+						for(var j=0;j<$("#menus").children('menu').length;j++){
+							if($("#menus").children('menu').eq(j).attr('label')==data.menus[i].fatherId){
+								var m = $("<menu style='margin: 0 0 0 20px;'>");
+								m.text(data.menus[i].menuName);
+								$("#menus").children('menu').eq(j).append(m);
+								var e=data.menus[i];
+								m.bind('click',e,function(event){
+									if($("#content").find("#"+event.data.menuName).attr("id")){
+										$("#content").find("#"+event.data.menuName).show().siblings().hide();
+									}else{							
+										$.get(event.data.menuUrl,function(md){
+											$("#content").children().hide();
+											var part=$("<div id='"+event.data.menuName+"'>");
+											part.html(md);
+											$("#content").append(part);
+										});
+									}
+								});
+							}
+						}
+					}
+				}
+			}
+			if(data&&data.user){
+				$("#profile").attr('src',data.user.profileFilePath);
+				$("#user").text(data.user.nickname+"("+data.user.username+")");
+			}
+			if(data&&data.role){
+				$("#role").text(data.role.roleName);
+			}
+		}
+	});
+});
+</script>
+</body>
+</html>

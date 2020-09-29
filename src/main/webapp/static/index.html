@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="Keywords" content="">
+	<meta name="Description" content="">
+	<title>music player</title>
+	<style type="text/css">
+	*{margin:0;padding:0}
+
+	.music{width:900px;height:560px;margin: 100px auto;}
+	.music .main{width:100%;height:500px;background:#422a61;}
+	.music .main .music-lyric{width:50%;height:100%;float:left;}
+	.music .main .music-list{width:50%;height:100%;float:right;overflow-y:auto}
+
+	.music .main .music-lyric h1{height:36px;background:#5994a6;text-align:center;font-size:25px;}
+	.music .main .music-lyric .music-lyric-main{background:url("image/music_screen.gif");background-size: 100% 100%;height: 463px;}
+	.music .main .music-lyric .music-lyric-main .music-lyric-context{overflow: hidden;height: 100%;}
+	.music .main .music-lyric .music-lyric-main .music-lyric-context p{line-height: 24px;height:24px;color: black;font-size: 16px;text-align: center;}
+
+	.music .main .music-list ul li{list-style:none;color:#fff;line-height:37px;padding-left:10px;border-bottom:1px solid #7d7d7d;}
+	.music .main .music-list ul li:hover {cursor: pointer;background: linear-gradient(45deg, #342d5f, #661d63);}
+	
+	::-webkit-scrollbar{width:10px;height:10px;}
+	/*滑块*/
+	::-webkit-scrollbar-thumb {background-color:#624d4d;border-radius:10px;}
+	::-webkit-scrollbar-thumb:hover{background-color:#777;}
+	/*滑道*/
+	::-webkit-scrollbar-track {border-radius:10px;}
+	
+	/* process start */
+	.music .process{width:100%;height:60px;background-color:#172240;}
+	.music .process .playstopprevnext{width:180px;height:100%;float:left;}	
+	.music .process .playstopprevnext .play{width:60px;height:100%;float:left;background:url("image/btn.png") 0 240px;}
+	.music .process .playstopprevnext .stop{width:60px;height:100%;float:left;background:url("image/btn.png") 0 300px;}
+	.music .process .playstopprevnext .prev{width:36px;height:36px;margin:11px;float:left;background:url("image/btn.png") -36px 158px;}
+	.music .process .playstopprevnext .next{width:36px;height:36px;margin:11px;float:right;background:url("image/btn.png") 120px 158px;}
+	.music .process .process-all{width:65%;height:100%;float:left;background-color:#09334f;}
+	.music .process .process-all .process-text{text-align:right;width:100%;height:40px;color:#00ff6682}
+	.music .process .process-all .process-text .music-name{float:left}
+	.music .process .process-all .process-content{width:100%;height:5px;background-color:#1984a9;}
+	.music .process .process-all .process-content .process-content-fill{width:0%;height:100%;background-color:#72c9c3;}
+	
+	.music .process .voice-pane{margin:0px 21px 21px 21px;float:left;}
+	.music .process .volume-pane{display:none;position:absolute;margin-left:778px;margin-top:-116px;width:29px;height:114px;z-index:100;background:url(image/volume-panel.png) no-repeat;}	
+	.music .process .volume-pane .volume-blank{width: 3px;background-color: #ffffffc9;height: 90px;margin: 10px 13px 14px 13px;}
+	.music .process .volume-pane .volume-blank .volume-fill{width: 3px;height: 74%;margin: auto 0px 0px 0px;background-color: #405665;}
+	
+	.music .process .voice-pane #voice{width: 16px;height: 16px;margin:21px 0px 0px 0px;}
+	.music .process .voice-pane .low-voice{background: url(image/btn.png) #172240 no-repeat;background-position: 1px -195px;}
+	.music .process .voice-pane .low-voice:hover{background: url(image/btn.png) #172240 no-repeat;background-position: -15px -195px;}
+	.music .process .voice-pane .high-voice{background: url(image/btn.png) #172240 no-repeat;background-position: -64px -195px;}
+	.music .process .voice-pane .high-voice:hover{background: url(image/btn.png) #172240 no-repeat;background-position: -80px -195px;}
+	.music .process .voice-pane .no-voice{background: url(image/btn.png) #172240 no-repeat;background-position: -128px -195px;}
+	.music .process .voice-pane .no-voice:hover{background: url(image/btn.png) #172240 no-repeat;background-position: -144px -195px;}
+	
+	.music .process .single-pattern{width: 16px;height: 16px;margin: 21px 21px;background: url(image/btn.png) #172240 no-repeat;background-position: 1px -179px;float: right;}
+	.music .process .single-pattern:hover{width: 16px;height: 16px;margin: 21px 21px;background: url(image/btn.png) #172240 no-repeat;background-position: -15px -179px;float: right;}
+	.music .process .circle-pattern{width: 16px;height: 16px;margin: 21px 21px;background: url(image/btn.png) #172240 no-repeat;background-position: -64px -179px;float: right;}
+	.music .process .circle-pattern:hover{width: 16px;height: 16px;margin: 21px 21px;background: url(image/btn.png) #172240 no-repeat;background-position: -80px -179px;float: right;}
+	.music .process .random-pattern{width: 16px;height: 16px;margin: 21px 21px;background: url(image/btn.png) #172240 no-repeat;background-position: -128px -179px;float: right;}
+	.music .process .random-pattern:hover{width: 16px;height: 16px;margin: 21px 21px;background: url(image/btn.png) #172240 no-repeat;background-position: -144px -179px;float: right;}
+	
+	/* process end */
+	</style>
+</head>
+<body>
+
+	<div class="music">
+		<div class="main">
+			<div class="music-lyric">
+				<h1>Music..</h1>
+				<div class="music-lyric-main"><div id="music-lyric-context" class="music-lyric-context"></div></div>
+			</div>
+			<!--  music-list start -->
+			<div class="music-list">
+				<ul>
+					<li data-name='Uu - 夏天的风'>Uu - 夏天的风</li>
+					<li data-name='梦然 - 少年'>梦然 - 少年</li>
+					<li data-name='莫问归期'>莫问归期</li>
+					<li data-name='棉子 - 勇气'>棉子 - 勇气</li>
+					<li data-name='阿冗 - 你的答案'>阿冗 - 你的答案</li>
+					<li data-name='程响 - 世界这么大还是遇见你'>程响 - 世界这么大还是遇见你</li>
+					<li data-name='海来阿木 - 点歌的人'>海来阿木 - 点歌的人</li>
+					<li data-name='鹏鹏、杨小壮 - 口是心非'>鹏鹏、杨小壮 - 口是心非</li>
+					<li data-name='司南 - 冬眠'>司南 - 冬眠</li>
+				</ul>
+			</div>
+			<!-- music-list end -->
+		</div>
+		
+		<!-- process start -->
+		<div class="process">
+			<div class='playstopprevnext'>
+				<div class='prev' id='prev'></div>
+				<div class='play' id="playstop" data-play='play'></div>
+				<div class='next' id='next'></div>
+			</div>
+			<div class='process-all'>
+				<div class='process-text' id='process-text'>
+					<div class='music-name' id='music-name'></div>
+					<div class='current-time' id='current-time'>00:00/00:00</div>
+				</div>
+				<div class='process-content' id='process-content'>
+					<div class='process-content-fill' id='process-content-fill'></div>
+				</div>
+			</div>
+			<div class='voice-pane' id='voice-pane'><div class='low-voice' id='voice'></div></div>
+			<div class='volume-pane' id='volume-pane'>
+				<div id="volume-blank" class="volume-blank">
+					<div id="volume-fill" class="volume-fill"></div>
+				</div>
+			</div>
+			<div class='circle-pattern' id='play-pattern' title="列表循环"></div>
+		</div>
+		<!-- process end -->
+	</div>
+</body>
+<script src="js/jquery-3.5.1.min.js"></script>
+<script type="text/javascript">
+	var audioDom = document.createElement("audio");
+	var lrc =[];
+	function timeSpan() {//在音频播放时调用这个函数
+		setInterval("process()", 100);
+		setInterval("showLrc()", 300);
+	}
+	
+	function showLrc(){
+		for(var i=0 ;i<lrc.length;i++){
+			if(i>0 && lrc[i].timestamp>audioDom.currentTime){
+				if(i>10){
+					$("#music-lyric-context").scrollTop(($("#"+lrc[i-1].time).data('index')-10)*24);
+				}else{
+					$("#music-lyric-context").scrollTop(0);
+				}
+				$("#"+lrc[i-1].time).css({'color':'white','font-size':'20px'});
+				$("#"+lrc[i-1].time).siblings().each(function(index,e){
+					$(e).css({'color':'black','font-size':'16px'});
+				});
+				break;
+			}
+		}
+	}
+	
+	function process(){
+		$("#process-content-fill").css("width",(audioDom.currentTime*100/audioDom.duration)+"%");
+		$("#current-time").text(timeFormat(audioDom.currentTime)+"/"+timeFormat(audioDom.duration));
+		
+		if(audioDom.ended){
+			if($("#play-pattern").attr("class")==="single-pattern"){
+				audioDom.currentTime=0;
+				audioDom.play();
+			}else if($("#play-pattern").attr("class")==="circle-pattern"){
+				$("#next").click();
+			}else if($("#play-pattern").attr("class")==="random-pattern"){
+				var list=$(".music-list li").map(function(i,e){return $(e).data('name');}).get();
+				play(list[parseInt(Math.random()*list.length)]);
+			}
+		}
+		
+		//$("#volume-fill").height(height*(1-audio.volume));
+	}
+	function timeFormat(number) {
+		var minute = parseInt(number / 60);
+		var second = parseInt(number % 60);
+		minute = minute >= 10 ? minute : "0" + minute;
+		second = second >= 10 ? second : "0" + second;
+		return minute + ":" + second;
+	}
+	
+	function downloadLrc(name){
+		lrc.length=0;
+		$("#music-lyric-context").html("");
+		$.ajax({
+			url:'mp3/'+name+'.lrc',
+			success:function(result){
+		        var array=result.split('\n');
+		        
+				array.forEach(function(e,i){
+		            var time=e.match(/\[(\d){2}\:(\d){2}\:(\d){2}\]/);
+		            if(time){
+						time=time[0];
+		                var p = e.replace(time,'');
+						var id=time.substring(1,time.length-1).split(':').join('');
+						var a =time.substring(1,time.length-1).split(':').map(function(e){return -(-e)});
+		                lrc.push({time:id,timestamp:a[0]*60+a[1]+a[2]/100});
+		                $("#music-lyric-context").append("<p id='"+id+"' data-index='"+(i+1)+"'>"+p+"</p>");
+		            }
+		        });
+		    }
+		});
+	}
+	function play(name){
+		audioDom.src="mp3/"+name+".mp3";
+		audioDom.autoplay="autoplay";
+		
+		$("#music-name").text(name);
+		
+		downloadLrc(name);
+		timeSpan();
+	}
+	
+	$(".music-list ul li").each(function(i,e){
+		$(e).click(function(){
+			play($(e).data('name'));
+		});
+	});
+	
+	$("#playstop").click(function(){
+		if('play'===$(this).data('play')){
+			$(this).data('play','stop');
+			$(this).removeClass("play").addClass("stop");
+			audioDom.pause();
+		}else if('stop'===$(this).data('play')){
+			$(this).data('play','play');
+			$(this).removeClass("stop").addClass("play");
+			audioDom.play();
+		}
+	});
+	
+	$("#process-content").click(function(e){
+		var width=$(this).width();
+		var left=$(this).offset().left;
+		var X=e.clientX;
+		audioDom.currentTime=(X-left)*audioDom.duration/width;
+	});
+	$("#process-content").mouseup(function(e){
+		var width=$(this).width();
+		var left=$(this).offset().left;
+		var X=e.clientX;
+		audioDom.currentTime=(X-left)*audioDom.duration/width;
+	});
+	
+	$("#prev").click(function(){
+		var name=audioDom.src.substring(audioDom.src.lastIndexOf("/")+1,audioDom.src.length-4);
+		var currentNode=$(".music-list li").filter(function(i,d){return d.dataset.name===decodeURI(name)});
+		if(currentNode.prev().text()==""){
+			play($(".music-list li").last().data('name'));
+		}else{
+			play(currentNode.prev().data('name'));
+		}
+	});
+	$("#next").click(function(){
+		var name=audioDom.src.substring(audioDom.src.lastIndexOf("/")+1,audioDom.src.length-4);
+		var currentNode=$(".music-list li").filter(function(i,d){return d.dataset.name===decodeURI(name)});
+		if(currentNode.next().text()==""){
+			play($(".music-list li").first().data('name'));
+		}else{
+			play(currentNode.next().data('name'));
+		}
+	});
+
+	$("#volume-pane,#voice-pane").hover(function(){
+		$("#volume-pane").show();
+	},function(){
+		$("#volume-pane").hide();
+	});
+	
+	$("#volume-blank").click(function(e){
+		var height=$(this).height();
+		$("#volume-fill").height(e.offsetY);
+		audioDom.volume=1-e.offsetY/height;
+	});
+	$("#volume-blank").mouseleave(function(e){
+		var height=$(this).height();
+		$("#volume-fill").height(e.offsetY);
+		audioDom.volume=1-e.offsetY/height;
+	});
+	
+	$("#play-pattern").click(function(){
+		if('single-pattern'===$(this).attr('class')){
+			$(this).removeClass("single-pattern").addClass("circle-pattern");
+			$(this).attr('title','列表循环');
+		}else if('circle-pattern'==$(this).attr('class')){
+			$(this).removeClass("circle-pattern").addClass("random-pattern");
+			$(this).attr('title','随机循环');
+		}else if('random-pattern'==$(this).attr('class')){
+			$(this).removeClass("random-pattern").addClass("single-pattern");
+			$(this).attr('title','单曲循环');
+		}
+	});	
+</script>
+</html>

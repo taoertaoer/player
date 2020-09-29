@@ -1,0 +1,54 @@
+<div id ="upload-space">
+	<input type="file" >上传
+	<input type="button" value='submit' id='upload-submit'>
+</div>
+<script src="js/jquery-3.5.1.min.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	$("#upload-submit").click(function(){
+		//获取文件框的文件集合
+		let files = $('#file')[0].files;
+		if(files.length===0){
+			alert("还没有选择文件");
+			return;
+		}
+		//创建FormData对象
+		let formData = new FormData();
+		//添加第一个文件到FormData
+		formData.append("file",files[0]);
+		//添加普通属性
+		formData.append("method","uploadMusic");
+		$.ajax({
+		    url : '../MusicController',
+		    type : 'POST',
+		    data : formData,
+		    xhr: function(){
+		        //获取到原生的 XMLHttpRequest 对象
+		        let myXhr = $.ajaxSettings.xhr();
+		        //异步上传对象带上传属性
+		        if(myXhr.upload){            
+		            //监听上传属性的上传事件,每次上传事件都会执行 progressHandlingFunction
+		            myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+		            //myXhr.upload.progress = function(){}            也可以
+		        }
+		        return myXhr;
+		    },
+		    processData : false,
+		    contentType : false,
+		    success : function(response) {
+		    },
+		    error : function(response) {
+		    },
+		});
+		function progressHandlingFunction(event) {
+		    event.total;        //获取上传文件的总大小
+		    event.loaded;        //获取已经上传的文件大小
+		    //获取进度的百分比值
+		    let percent  = (event.loaded / event.total) * 100;
+		    //四舍五入保留两位小数
+		    percent = percent.toFixed(2);
+		}
+	});
+});
+</script>

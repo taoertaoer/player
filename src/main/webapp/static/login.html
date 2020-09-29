@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div>
+<input type="text" name="username" id="username">
+
+<input type="password" name ="password" id="password">
+
+<input type="hidden" name="md5_password" id="md5_password">
+<br>
+请输入验证码<img src="../ImageServlet" id="countImg">
+验证码有效时间<span id="count">20</span>
+<input type="text"  name ="verifyNum" id="verifyNum">
+<button onclick="document.getElementById('countImg').src='../ImageServlet?'+new Date().getTime();document.getElementById('count').innerText='20';">refreshImg</button>
+<input type="button" name="submit" value="submit" id="submit">
+
+</div>
+<script src="js/jquery-3.5.1.min.js"></script>
+<script src="js/md5.js"></script>
+<script type="text/javascript">
+setInterval(function(){
+	var i=parseInt($("#count").text());
+	if(--i===-1)i=0;
+	$("#count").text(i);
+},1000);
+$("#password").change(function(){
+	$("#md5_password").val(md5($("#password").val()));
+});
+$("#submit").click(function(){
+	if(parseInt($("#count").text())===0){
+		alert("验证码过期");
+		return;
+	}
+	$.ajax({
+		url:"../AuthUserController",
+		data:{method: 'login', username: $("#username").val(), md5_password: $("#md5_password").val(), verifyNum: $("#verifyNum").val()},
+		type:"post",
+		success:function(data){
+			console.log(data);
+			alert(data.content);
+			if(data.code===0){
+				window.location.href="main.html";
+			}
+		}
+	});
+});
+</script>
+</body>
+</html>

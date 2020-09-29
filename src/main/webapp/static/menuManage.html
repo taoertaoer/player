@@ -1,0 +1,238 @@
+<style>
+#update-menu-content,#insert-menu-content{
+	top:30%;
+	left:30%;
+	z-index: 1000;
+    width: 300px;
+    height: 300px;
+    position: absolute;
+    background-color: #f9f9fe;
+    display:none
+}
+</style>
+<div id ="menu-space">
+	<div id="menu-content">
+		<button id="menu-query">查询</button><button id="menu-insert">新增</button>
+		<table>
+			<thead>
+				<tr><td>序号</td><td>菜单名称</td><td>菜单url</td><td>父菜单</td><td>是否启用</td><td>操作</td></tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+	<div id="page-menu-content">
+	</div>
+	<div id="update-menu-content">
+		<p>菜单更新</p>
+		<input style="display:none" id="update_menu_id">
+		名称
+		<input id="update_menu_name">
+		父菜单
+		<select id="update_father_menu" onchange="if(this.value==0)document.getElementById('update_menu_url').value='--'">
+		</select>
+		路径
+		<input id="update_menu_url" onchange="if(document.getElementById('update_menu_url').value==0){this.value='--'}else{this.value.replace(/-/g,'')}">
+		是否启用
+		<select id="update_is_valid_menu">
+			<option value="Y">Y</option>
+			<option value="N">N</option>
+		</select>
+		<input type="button" value="确定" id="update_menu_confirm">
+		<input type="button" value="取消" id="update_menu_cancel">
+	</div>
+	<div id="insert-menu-content">
+		<p>添加菜单</p>
+		名称
+		<input id="insert_menu_name">
+		父菜单
+		<select id="insert_father_menu" onchange="if(this.value==0)document.getElementById('update_menu_url').value='--'">
+		</select>
+		路径
+		<input id="insert_menu_url" onchange="if(document.getElementById('update_menu_url').value==0){this.value='--'}else{this.value.replace(/-/g,'')}">
+		是否启用
+		<select id="insert_is_valid_menu">
+			<option value="Y">Y</option>
+			<option value="N">N</option>
+		</select>
+		<input type="button" value="确定" id="insert_menu_confirm">
+		<input type="button" value="取消" id="insert_menu_cancel">
+	</div>
+</div>
+<script src="js/page.js"></script>
+<script src="js/jquery-3.5.1.min.js"></script>
+<script src="js/md5.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	var menu_list =[];
+	var first_level_list ={};
+	var menu_page=paging_tool;
+	menu_page.id="page-menu-content";
+	menu_page.allPageQuery=function(){	
+		$("#menu-content table tbody").html();
+		$.ajax({
+			url:"../MenuController",
+			data:{method: 'findAllMenus'},
+			type:"post",
+			async:false,
+			success:function(data){
+				console.log(data);
+				console.log(data.data[0]);
+				console.log(data.data.length);
+				if(data&&data.data.length>0){
+					menu_page.item_total_size=data.count;
+					menu_list=data.data;
+					data.data.filter(function(e){return e.fatherId==0}).forEach(function(e){first_level_list[e.id]=e.menuName});
+				}
+			}
+		});
+	}
+	menu_page.everyPageQuery=function(current_page_num){
+		$("#menu-content table tbody").html("");
+		console.log("Math.min(menu_page.page_item_size*current_page_num,menu_list.length)==="+Math.min(menu_page.page_item_size*current_page_num,menu_list.length));
+		console.log("menu_page.page_item_size*(current_page_num-1)==="+menu_page.page_item_size*(current_page_num-1));
+		for(var i=menu_page.page_item_size*(current_page_num-1);i<Math.min(menu_page.page_item_size*current_page_num,menu_list.length);i++){
+			console.log("i======"+i);
+			$("#menu-content table tbody").append($("<tr><td>"+(i+1)+"序号</td><td>"+menu_list[i].menuName+"</td><td>"+menu_list[i].menuUrl+"</td><td>"+menu_list[i].isValid+
+			"</td><td>"+(menu_list[i].fatherId==0?"":first_level_list[menu_list[i].fatherId])+"</td><td><button id='delete_menu_"+i+"'>删除</button><button id='update_menu_"+i+"'>编辑</button></td></tr>"));
+			var id=menu_list[i].id;
+			var menu=menu_list[i];
+			$("#delete_menu_"+i).click(function(){delete_menu(id)});
+			$("#update_menu_"+i).click(function(){update_menu(menu)});
+		}
+	}
+	$("#menu-query").click(function(){
+		menu_page.allPageQuery();
+		menu_page.gotoPage(1);		
+	});
+	
+	function findMenus(m){
+		m.method='findMenus';
+		console.log("m",m);
+		var menus=[];
+		$.ajax({
+			url:"../MenuController",
+			data:m,
+			type:"post",
+			async: false,
+			success:function(data){
+				console.log(data);
+				if(data.code==="02")menus=data.data;
+			}
+		});
+		return menus;
+	}
+	
+	//新增
+	$("#menu-insert").click(function(){
+		$("#insert-menu-content").show();
+		var menus=findMenus({fatherId: 0});
+		$("#insert_father_menu").empty().append(new Option("",0));
+		menus.forEach(function(e){
+			$("#insert_father_menu").append(new Option(e.menuName, e.id));
+		});
+	})
+	var insert_menu_name_verify=function(){
+		if($("#insert_menu_name").val()===""){
+			alert("名称不能为空");
+			$("#insert_menu_name").focus();
+			return false;
+		}
+		var menus=findMenus({menuName: $("#insert_menu_name").val()});
+		if(menus.length>0){
+			alert("名称已经被使用");
+			$("#insert_menu_name").focus();
+			return false;
+		}
+		return true;
+	}
+	$("#insert_menu_name").change(insert_menu_name_verify);
+	$("#insert_menu_confirm").click(function(){
+		if(insert_menu_name_verify()===false)return;
+		var menuName=$("#insert_menu_name").val();
+		var menuUrl=$("#insert_menu_url").val();
+		var fatherId=$("#insert_father_menu").val();
+		var isValid=$("#insert_is_valid_menu").val();
+		$.ajax({
+			url:"../MenuController",
+			data:{method: 'addMenu', fatherId: fatherId, menuName: menuName, menuUrl: menuUrl, isValid: isValid},
+			type:"post",
+			async:false,
+			success:function(data){
+				console.log(data);
+				if(data.code==="01")alert(data.message);
+			}
+		});
+	});
+	$("#insert_menu_cancel").click(function(){
+		$("#insert-menu-content").hide();
+	});
+	
+	//删除
+	function delete_menu(id){
+		if(confirm('确认删除？')){
+			$.ajax({
+				url:"../MenuController",
+				data:{method: 'deleteMenuById', id: id},
+				type:"post",
+				async:false,
+				success:function(data){
+					console.log(data);
+					if(data.code==="02")alert(data.message);
+				}
+			});
+		}
+	}
+	
+	//更新
+	function update_menu(menu){
+		$("#update_menu_id").val(menu.id);
+		$("#update_menu_name").val(menu.menuName);
+		$("#update_menu_url").val(menu.menuUrl);
+		$("#update_is_valid_menu").val(menu.isValid);
+		$("#update-menu-content").show();
+		var menus=findMenus({fatherId: 0});
+		$("#update_father_menu").empty().append(new Option("",0));
+		menus.forEach(function(e){
+			$("#update_father_menu").append(new Option(e.menuName, e.id));
+		});
+		$("#update_father_menu").val(menu.fatherId);
+	}
+	var update_menu_name_verify=function(){
+		if($("#update_menu_name").val()===""){
+			alert("名称不能为空");
+			$("#update_menu_name").focus();
+			return false;
+		}
+		var menus=findMenus({menuName:$("#update_menu_name").val()});
+		if(menus.length>0 && $("#update_menu_id").val()===menus[0].id){
+			alert("名称已经被使用");
+			$("#update_menu_name").focus();
+			return false;
+		}
+		return true;
+	}
+	$("#update_menu_name").change(update_menu_name_verify);
+	$("#update_menu_confirm").click(function(){
+		if(update_menu_name_verify()===false)return;
+		var id=$("#update_menu_id").val();
+		var menuName=$("#update_menu_name").val();
+		var menuUrl=$("#update_menu_url").val();
+		var fatherId=$("#update_father_menu").val();
+		var isValid=$("#update_is_valid_menu").val();
+		$.ajax({
+			url:"../MenuController",
+			data:{method: 'updateMenu', id: id, fatherId: fatherId, menuName: menuName, menuUrl: menuUrl, isValid: isValid},
+			type:"post",
+			async:false,
+			success:function(data){
+				console.log(data);
+				if(data.code==="03")alert(data.message);
+			}
+		});
+	});
+	$("#update_menu_cancel").click(function(){
+		$("#update-menu-content").hide();
+	});
+});
+</script>
